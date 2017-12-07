@@ -82,7 +82,9 @@ table_fields = {
     'Capacitors - Polymer': table_fields_shared + ['Capacitance', 'Capacitance Tolerance', 'Equivalent Series Resistance (ESR)', 'Case/Package', 'Case/Package (SI)', 'Dielectric Characteristic', 'Dielectric Material', 'Mounting Style', 'RoHS', 'Size-Diameter', 'Size-Height', 'Type', 'Voltage Rating'],
     'Inductors - Fixed': table_fields_shared + ['Case/Package', 'Case/Package (SI)', 'Current Rating', 'Inductance', 'Inductance Tolerance', 'Mounting Style', 'Q-Factor', 'RoHS', 'Self-Resonant Frequency', 'Shielding', 'Size-Height', 'Size-Length', 'Size-Width', 'Type'],
     'LEDs': table_fields_shared + ['Case/Package', 'Case/Package (SI)', 'Dielectric Characteristic', 'Color', 'Forward Voltage', 'Lens Type', 'Luminous Intensity', 'Mounting Style', 'RoHS', 'Size-Height', 'Size-Length', 'Size-Width', 'Type', 'Viewing Angle', 'Wavelength'],
-    'Resistors - Chip': table_fields_shared + ['Case/Package', 'Case/Package (SI)', 'Composition', 'Mounting Style', 'Power Rating', 'Resistance', 'Resistance Tolerance', 'RoHS', 'Size-Height', 'Size-Length', 'Size-Width', 'Temperature Coefficient', 'Type', 'Voltage Rating']
+    'Resistors - Chip': table_fields_shared + ['Case/Package', 'Case/Package (SI)', 'Composition', 'Mounting Style', 'Power Rating', 'Resistance', 'Resistance Tolerance', 'RoHS', 'Size-Height', 'Size-Length', 'Size-Width', 'Temperature Coefficient', 'Type', 'Voltage Rating'],
+    'Transistors': table_fields_shared + ['Case/Package', 'Case/Package (SI)', 'Contact Plating', 'Current Rating', 'Breakdown Voltage [Collector to Base]', 'Breakdown Voltage [Collector to Emitter]', 'Breakdown Voltage [Drain to Source]', 'Breakdown Voltage [Gate to Source]', 'Drain to Source Resistance (on) (Rds)', 'Mount', 'Nominal Vgs', 'Number of Elements', 'Number of Pins', 'Polarity' ,'Type'],
+    'Integrated Circuits': table_fields_shared + ['Case/Package', 'Mounting Style', 'RoHS']
 }
 
 def get_tablename(octopart_category_uids):
@@ -167,3 +169,9 @@ def normalize_ratings(table_row):
             v, u = split_valuestring(table_row[field])
             table_row[field] = format_value(v, unit)
     return table_row
+
+def standardize_manufacturer(manufacturer):
+    if manufacturer.lower() == 'kemet':
+        return 'Kemet'
+    else:
+        return manufacturer

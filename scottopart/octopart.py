@@ -3,7 +3,7 @@ import os
 import argparse
 from pyoctopart.octopart import Octopart
 import pprint
-from .dblib_conventions import get_tablename, get_parttype, normalize_ratings, standardize_description
+from .dblib_conventions import get_tablename, get_parttype, normalize_ratings, standardize_description, standardize_manufacturer
 
 class Scottopart:
     def __init__(self):
@@ -40,7 +40,7 @@ class Scottopart:
             else:
                 table_name = get_tablename(r['items'][0]['category_uids'])
                 table_row = {}
-                table_row['Manufacturer'] = r['items'][0]['manufacturer']['name'].title() # fix capitalization
+                table_row['Manufacturer'] = standardize_manufacturer(r['items'][0]['manufacturer']['name'])
                 table_row['MPN'] = r['items'][0]['mpn']
                 table_row['Description'] = r['items'][0]['short_description']
                 table_row['ComponentLink1Description'] = 'Octopart'
