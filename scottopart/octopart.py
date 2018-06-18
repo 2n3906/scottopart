@@ -67,6 +67,7 @@ class Scottopart:
                 # Fix up some field names.
                 if 'Voltage Rating (DC)' in table_row:
                     table_row['Voltage Rating'] = table_row.pop('Voltage Rating (DC)')
+                # TODO: Normalize "Mount" and "Mounting Type", etc. to "Mounting Style"
                 # Normalize ratings (eliminate trailing zeroes, use correct Unicode character for unit, etc.)
                 table_row = normalize_ratings(table_row)
                 # Standardize Description field for certain part types.

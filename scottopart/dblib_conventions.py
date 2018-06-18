@@ -62,29 +62,74 @@ parttypes_from_octopart_categories = {
     'd6c01bcae73c0d07': 'MOV'
 }
 
-table_fields_shared = ['Manufacturer',
-                       'MPN',
-                       'Comment',
-                       'Description',
-                       'PartNumber',
-                       'Value',
+# Common fields
+table_fields_shared = ['Type',
+                       'Manufacturer',
+                       'MPN', # varchar(50) primary key
+                       'Comment', # varchar(100)
+                       'Description', # varchar(255)
                        'Library Path',
                        'Library Ref',
                        'Footprint Path',
                        'Footprint Ref',
+                       'PartNumber',
+                       'Value',
                        'Supplier 1',
                        'Supplier Part Number 1',
                        'ComponentLink1Description',
-                       'ComponentLink1URL']
+                       'ComponentLink1URL', # varchar(255)
+                       'Case/Package',
+                       'Case/Package (SI)',
+                       'Mounting Style',
+                       'RoHS']
+
+# Field types
+# Default field type: varchar(50)
+field_types = {
+    'MPN': 'VARCHAR(50) PRIMARY KEY',
+    'Comment': 'VARCHAR(100)',
+    'Description': 'VARCHAR(255)',
+    'ComponentLink1URL': 'VARCHAR(255)'
+}
+field_type_lookup = lambda k: field_types[k] if k in field_types else 'VARCHAR(50)'
+
 table_fields = {
-    'Capacitors - Aluminum Electrolytic': table_fields_shared + ['Capacitance', 'Capacitance Tolerance', 'Equivalent Series Resistance (ESR)', 'Case/Package', 'Case/Package (SI)', 'Dielectric Characteristic', 'Dielectric Material', 'Mounting Style', 'RoHS', 'Size-Diameter', 'Size-Height', 'Type', 'Voltage Rating'],
-    'Capacitors - Ceramic': table_fields_shared + ['Capacitance', 'Capacitance Tolerance', 'Case/Package', 'Case/Package (SI)', 'Dielectric Characteristic', 'Dielectric Material', 'Mounting Style', 'RoHS', 'Size-Height', 'Size-Length', 'Size-Width', 'Type', 'Voltage Rating'],
-    'Capacitors - Polymer': table_fields_shared + ['Capacitance', 'Capacitance Tolerance', 'Equivalent Series Resistance (ESR)', 'Case/Package', 'Case/Package (SI)', 'Dielectric Characteristic', 'Dielectric Material', 'Mounting Style', 'RoHS', 'Size-Diameter', 'Size-Height', 'Type', 'Voltage Rating'],
-    'Inductors - Fixed': table_fields_shared + ['Case/Package', 'Case/Package (SI)', 'Current Rating', 'Inductance', 'Inductance Tolerance', 'Mounting Style', 'Q-Factor', 'RoHS', 'Self-Resonant Frequency', 'Shielding', 'Size-Height', 'Size-Length', 'Size-Width', 'Type'],
-    'LEDs': table_fields_shared + ['Case/Package', 'Case/Package (SI)', 'Dielectric Characteristic', 'Color', 'Forward Voltage', 'Lens Type', 'Luminous Intensity', 'Mounting Style', 'RoHS', 'Size-Height', 'Size-Length', 'Size-Width', 'Type', 'Viewing Angle', 'Wavelength'],
-    'Resistors - Chip': table_fields_shared + ['Case/Package', 'Case/Package (SI)', 'Composition', 'Mounting Style', 'Power Rating', 'Resistance', 'Resistance Tolerance', 'RoHS', 'Size-Height', 'Size-Length', 'Size-Width', 'Temperature Coefficient', 'Type', 'Voltage Rating'],
-    'Transistors': table_fields_shared + ['Case/Package', 'Case/Package (SI)', 'Contact Plating', 'Current Rating', 'Breakdown Voltage [Collector to Base]', 'Breakdown Voltage [Collector to Emitter]', 'Breakdown Voltage [Drain to Source]', 'Breakdown Voltage [Gate to Source]', 'Drain to Source Resistance (on) (Rds)', 'Mount', 'Nominal Vgs', 'Number of Elements', 'Number of Pins', 'Polarity' ,'Type'],
-    'Integrated Circuits': table_fields_shared + ['Case/Package', 'Mounting Style', 'RoHS']
+    'Capacitors - Aluminum Electrolytic': table_fields_shared + \
+    ['Capacitance', 'Capacitance Tolerance', 'Equivalent Series Resistance (ESR)', 'Dielectric Characteristic', 'Dielectric Material', 'Size-Diameter', 'Size-Height', 'Voltage Rating'],
+    'Capacitors - Ceramic': table_fields_shared + \
+    ['Capacitance', 'Capacitance Tolerance', 'Dielectric Characteristic', 'Dielectric Material', 'Size-Height', 'Size-Length', 'Size-Width', 'Voltage Rating'],
+    'Capacitors - Polymer': table_fields_shared + \
+    ['Capacitance', 'Capacitance Tolerance', 'Equivalent Series Resistance (ESR)', 'Dielectric Characteristic', 'Dielectric Material', 'Size-Diameter', 'Size-Height', 'Voltage Rating'],
+    'Connectors': table_fields_shared + \
+    ['Contact Material', 'Contact Plating', 'Gender', 'Number of Positions', 'Number of Rows', 'Pitch', 'Series'],
+    'Crystals': table_fields_shared + \
+    ['Frequency', 'Frequency Stability', 'Load Capacitance', 'Number of Pins'],
+    'Diodes': table_fields_shared + \
+    ['Capacitance', 'Current Rating', 'Diode Type', 'Forward Voltage', 'Reverse Recovery Time', 'Voltage Rating'],
+    'Fuses': table_fields_shared + \
+    ['Holding Current', 'Tripping Current', 'Voltage Rating'],
+    'Inductors - Ferrite Bead': table_fields_shared + \
+    ['Current Rating', 'Frequency', 'Impedance', 'Number of Circuits', 'Resistance', 'Size-Height', 'Size-Length', 'Size-Width'],
+    'Inductors - Fixed': table_fields_shared + \
+    ['Current Rating', 'Inductance', 'Inductance Tolerance', 'Q-Factor', 'Self-Resonant Frequency', 'Shielding', 'Size-Diameter', 'Size-Height', 'Size-Length', 'Size-Width'],
+    'Integrated Circuits': table_fields_shared + \
+    [],
+    'LEDs': table_fields_shared + \
+    ['Color', 'Forward Voltage', 'Lens Type', 'Luminous Intensity', 'Size-Height', 'Size-Length', 'Size-Width', 'Viewing Angle', 'Wavelength'],
+    'Relays': table_fields_shared + \
+    ['Coil Voltage', 'Coil Current', 'Contact Current Rating', 'Contact Voltage Rating', 'Relay Type', 'Size-Height', 'Size-Length', 'Size-Width', 'Throw Configuration'],
+    'Resistors - Chip': table_fields_shared + \
+    ['Composition', 'Power Rating', 'Resistance', 'Resistance Tolerance', 'Size-Height', 'Size-Length', 'Size-Width', 'Temperature Coefficient', 'Voltage Rating'],
+    'Resistors - Thermistor': table_fields_shared + \
+    ['B25/50', 'B25/85', 'Power Rating', 'Resistance', 'Resistance Tolerance', 'Size-Height', 'Size-Length', 'Size-Width', 'Voltage Rating'],
+    'Switches': table_fields_shared + \
+    ['Actuator Type', 'Contact Current Rating', 'Contacts Type', 'Orientation', 'Size-Length', 'Size-Width'],
+    'Transformers': table_fields_shared + \
+    [],
+    'Transistors': table_fields_shared + \
+    ['Current Rating', 'Breakdown Voltage [Collector to Base]', 'Breakdown Voltage [Collector to Emitter]', 'Breakdown Voltage [Drain to Source]', 'Breakdown Voltage [Gate to Source]', 'Drain to Source Resistance (on) (Rds)', 'Nominal Vgs', 'Number of Elements', 'Number of Pins', 'Polarity'],
+    'Varistors': table_fields_shared + \
+    []
 }
 
 def get_tablename(octopart_category_uids):
@@ -175,3 +220,4 @@ def standardize_manufacturer(manufacturer):
         return 'Kemet'
     else:
         return manufacturer
+

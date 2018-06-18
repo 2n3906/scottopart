@@ -18,7 +18,7 @@ def main(input_file=False, output_file=False):
     reader = csv.reader(input_file)
     for row in reader:
         if len(row) > 0:
-            partlist.append(row[0])
+            partlist.append(row[0].rstrip())
 
     # Process part numbers.
     s = scottopart.Scottopart()
