@@ -11,10 +11,11 @@ import csv
 import argparse
 import requests
 import time
+import datetime
 
 ######## EDIT BELOW THIS LINE ############
 
-# authorized_capacitor_manufacturers = ['TDK', 'Murata', 'Yageo', 'KEMET']
+authorized_capacitor_manufacturers = ['TDK', 'Murata', 'Yageo', 'KEMET', 'Taiyo Yuden', 'Samsung', 'AVX']
 # authorized_resistor_manufacturers = ['Yageo', 'Panasonic', 'Vishay']
 authorized_sellers = ['Digi-Key', 'Newark', 'Mouser', 'Avnet', 'Arrow Electronics, Inc.']
 authorized_country_codes = ['US']
@@ -38,11 +39,12 @@ standard_capacitor_values_above_1uF = [round(i * 1e-6, 12) for i in e3] + \
 
 all_capacitor_values = standard_capacitor_values_below_1uF + standard_capacitor_values_above_1uF
 
-case_packages = ['0603']
+case_packages = ['0201', '0402', '0603']
 
 key_specs = ['capacitance', 'capacitance_tolerance', 'case_package', 'dielectric_characteristic', 'operating_temperature', 'voltage_rating_dc']
 
 csv_fieldnames = [
+    'datetime',
     'query_case_package',
     'query_capacitance',
     'brand',
@@ -55,7 +57,8 @@ csv_fieldnames = [
     'dielectric_characteristic',
     'min_operating_temperature',
     'max_operating_temperature',
-    'voltage_rating_dc'
+    'voltage_rating_dc',
+    'avg_price'
 ]
 
 ######## EDIT ABOVE THIS LINE ############
@@ -66,7 +69,7 @@ def search_octopart_capacitors(case_package, capacitance):
     payload = {
         'apikey': octopart_api_key,
         'q': '', # leave blank
-        'filter[fields][manufacturer.displayname][]': ['TDK', 'Murata', 'Yageo', 'KEMET'],
+        'filter[fields][manufacturer.displayname][]': authorized_capacitor_manufacturers,
         'filter[fields][specs.capacitance.value][]': capacitance,
         'filter[fields][specs.case_package.value][]': case_package,
         'limit' : 100,
@@ -80,12 +83,24 @@ def json_results_to_list(json):
     for item in json['results']:
         authorized_offers = [x for x in item['item']['offers'] if x['seller']['display_flag'] in authorized_country_codes and x['seller']['name'] in authorized_sellers and x['packaging'] in authorized_packaging]
         total_in_stock = sum([x['in_stock_quantity'] for x in authorized_offers])
+
+        # Calculate average price (based on arbitrary MOQ > 1499)
+        price_highest_qty_list = [x['prices'].get('USD', [[0, None]])[-1] for x in authorized_offers]
+        prices_to_average = [float(x[1]) for x in price_highest_qty_list if (x[0] > 1499)]
+        if len(prices_to_average) > 0:
+            average_price = sum(prices_to_average) / len(prices_to_average)
+        else:
+            average_price = ''
+
         part = {
             'brand' : item['item']['brand']['name'],
             'mpn' : item['item']['mpn'],
             'octopart_url' : item['item']['octopart_url'],
             'total_in_stock' : total_in_stock,
+            'avg_price' : average_price,
         }
+
+        # Get the specs in there
         filtered_specs = {k:v for (k,v) in item['item']['specs'].items() if k in key_specs}
         if 'operating_temperature' in filtered_specs:
             filtered_specs['min_operating_temperature'] = {'value': [filtered_specs['operating_temperature']['min_value']]}
@@ -105,6 +120,8 @@ def main(output_file=False):
     writer = csv.DictWriter(output_file, fieldnames=csv_fieldnames)
     writer.writeheader()
 
+    current_datetime = datetime.datetime.utcnow().isoformat()
+
     for case_package in case_packages:
         for val in all_capacitor_values:
             json_result = search_octopart_capacitors(case_package, val)
@@ -113,6 +130,7 @@ def main(output_file=False):
                 row = s
                 row['query_capacitance'] = val
                 row['query_case_package'] = case_package
+                row['datetime'] = current_datetime
                 writer.writerow(row)
             output_file.flush()
             time.sleep(1)
