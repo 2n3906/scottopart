@@ -1,2 +1,0 @@
-pyoctopart>=0.6.3
--e git+https://github.com/ulikoehler/UliEngineering.git
