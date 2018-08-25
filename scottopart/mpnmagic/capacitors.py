@@ -48,7 +48,16 @@ def cap_murata_parse(matchgroup):
             '2' : '0.2 mm',
             '3' : '0.3 mm',
             '4' : '0.4 mm',
-            '5' : '0.5 mm'
+            '5' : '0.5 mm',
+            '6' : '0.6 mm',
+            '7' : '0.7 mm',
+            '8' : '0.8 mm',
+            '9' : '0.85 mm',
+            'A' : '1.0 mm',
+            'B' : '1.25 mm',
+            'C' : '1.6 mm',
+            'D' : '2.0 mm',
+            'E' : '2.5 mm'
         },
         'dielectric_characteristic' : {
             '5C' : 'C0G/NP0',
