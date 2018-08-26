@@ -20,9 +20,10 @@ def capcode_to_value(capcode):
     return a
 
 
-# Murata ceramic capacitors
+# Murata ceramic capacitors (beware: GCM is automotive)
+# TODO: add support for GCJ (automotive) series
 cap_murata_re = re.compile(
-    '^(?P<manufacturer_series>GRM|GJM)'
+    '^(?P<manufacturer_series>GRM|GJM|GCM)'
     '(?P<case_package>[0-9DU]{2})'
     '(?P<size_thickness>[2-9A-Z]{1})'
     '(?P<dielectric_characteristic>[0-9A-Z]{2})'
@@ -37,12 +38,14 @@ cap_murata_re = re.compile(
 def cap_murata_parse(matchgroup):
     lookups = {
         'case_package' : {
-            '03': '0201',
-            '15': '0402',
-            '18': '0603',
-            '21': '0805',
-            '31': '1206',
-            '32': '1210'
+            '03' : '0201',
+            '15' : '0402',
+            '18' : '0603',
+            '21' : '0805',
+            '31' : '1206',
+            '32' : '1210',
+            '43' : '1812',
+            '55' : '2220'
         },
         'size_thickness' : {
             '2' : '0.2 mm',
@@ -57,15 +60,22 @@ def cap_murata_parse(matchgroup):
             'B' : '1.25 mm',
             'C' : '1.6 mm',
             'D' : '2.0 mm',
-            'E' : '2.5 mm'
+            'E' : '2.5 mm',
+            'M' : '1.15 mm',
+            'Q' : '1.5 mm'
         },
         'dielectric_characteristic' : {
             '5C' : 'C0G/NP0',
             '7U' : 'U2J',
             'C7' : 'X7S',
+            'C8' : 'X6S',
+            'D7' : 'X7T',
+            'D8' : 'X6T',
             'E7' : 'X7U',
+            'R6' : 'X5R',
             'R7' : 'X7R',
-            'W0' : 'X7T'
+            'W0' : 'X7T',
+            'R9' : 'X8R'
         },
         'voltage_rating_dc' : {
             '0E' : 2.5,
@@ -82,7 +92,8 @@ def cap_murata_parse(matchgroup):
             '2E' : 250,
             '2W' : 450,
             '2H' : 500,
-            '2J' : 630
+            '2J' : 630,
+            '3A' : 1000
         },
         'capacitance_tolerance' : {
             'B' : '±0.1pF',
@@ -180,6 +191,7 @@ def cap_samsung_parse(matchgroup):
 
 
 # TDK ceramic capacitors
+# TODO: add parser for CGA (automotive) series (https://product.tdk.com/info/en/catalog/datasheets/mlcc_automotive_general_en.pdf)
 cap_tdk_re = re.compile(
     '^(?P<manufacturer_series>C)'
     '(?P<case_package>[0-9]{4})'
@@ -252,13 +264,13 @@ def cap_tdk_parse(matchgroup):
 
 # Kemet ceramic capacitors
 cap_kemet_re = re.compile(
-    '^(?P<manufacturer_series>C)'
+    '^C'
     '(?P<case_package>[0-9]{4})'
-    'C'
+    '(?P<manufacturer_series>C|H|X|S)'
     '(?P<capacitance>[R0-9]{3})'
     '(?P<capacitance_tolerance>[B-M])'
     '(?P<voltage_rating_dc>[1-9A])'
-    '(?P<dielectric_characteristic>G|R|P)'
+    '(?P<dielectric_characteristic>H|G|R|P|U)'
     '(?P<reliability_code>[A-Z])?'
     '(?P<plating_code>[A-Z])?'
     '(?P<packaging_code>[A-Z]+)?'
@@ -289,7 +301,8 @@ def cap_kemet_parse(matchgroup):
             'G' : 'C0G/NP0',
             'R' : 'X7R',
             'P' : 'X5R',
-            'U' : 'Z5U'
+            'U' : 'Z5U',
+            'H' : 'X8R'
         }
     }
     result = {k:lookups.get(k, {}).get(v, v) for k, v in matchgroup.items()}
