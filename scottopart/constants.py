@@ -1,47 +1,38 @@
-import math
+# Constants
 
-e3 = (1.0, 2.2, 4.7)
-e6 = (1.0, 1.5, 2.2, 3.3, 4.7, 6.8)
-e12 = (1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2)
-e24 = (1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.7, 3.0,
+E3 =  (1.0, 2.2, 4.7)
+E6 =  (1.0, 1.5, 2.2, 3.3, 4.7, 6.8)
+E12 = (1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2)
+E24 = (1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 1.8, 2.0, 2.2, 2.4, 2.7, 3.0,
        3.3, 3.6, 3.9, 4.3, 4.7, 5.1, 5.6, 6.2, 6.8, 7.5, 8.2, 9.1)
+E96 = (1.00, 1.02, 1.05, 1.07, 1.10, 1.13, 1.15, 1.18, 1.21, 1.24, 1.27,
+       1.30, 1.33, 1.37, 1.40, 1.43, 1.47, 1.50, 1.54, 1.58, 1.62, 1.65,
+       1.69, 1.74, 1.78, 1.82, 1.87, 1.91, 1.96, 2.00, 2.05, 2.10, 2.15,
+       2.21, 2.26, 2.32, 2.37, 2.43, 2.49, 2.55, 2.61, 2.67, 2.74, 2.80,
+       2.87, 2.94, 3.01, 3.09, 3.16, 3.24, 3.32, 3.40, 3.48, 3.57, 3.65,
+       3.74, 3.83, 3.92, 4.02, 4.12, 4.22, 4.32, 4.42, 4.53, 4.64, 4.75,
+       4.87, 4.99, 5.11, 5.23, 5.36, 5.49, 5.62, 5.76, 5.90, 6.04, 6.19,
+       6.34, 6.49, 6.65, 6.81, 6.98, 7.15, 7.32, 7.50, 7.68, 7.87, 8.06,
+       8.25, 8.45, 8.66, 8.87, 9.09, 9.31, 9.53, 9.76)
 
+CAPACITOR_STANDARD_VALUES = sum([
+    [round(i * 1e-12, 13) for i in E6],  # 1 - 6.8 pF
+    [round(i * 1e-11, 12) for i in E12], # 10 - 82 pF
+    [round(i * 1e-10, 12) for i in E12], # 100 - 820 pF
+    [round(i * 1e-9, 12) for i in E12],  # 1000 - 8200 pF  
+    [round(i * 1e-8, 12) for i in E12],  # 10 nF - 82 nF
+    [round(i * 1e-7, 12) for i in E12],  # 100 nF - 820 nF
+    [round(i * 1e-6, 12) for i in E3],   # 1 uF - 4.7 uF
+    [round(i * 1e-5, 12) for i in E3],   # 10 uF - 47 uF
+    [100e-6]                             # 100 uF
+], [])
 
-def split_valuestring(input):
-    # Don't forget to handle '\u03a9'(capital omega) and '\u2126' (ohm sign)
-    # And '\u03bc' (greek mu) and '\u00b5' (micro sign)
-    a = EngineerIO.EngineerIO(units=frozenset(['A', 'Ω', 'Ω', 'F', 'H', 'V', 'W']),
-                              suffices=[["y"], ["z"], ["a"], ["f"], ["p"], ["n"], ["\u00b5", "\u03bc", "u"], ["m"], [], ["k"], ["M"], ["G"], ["T"], ["E"], ["Z"], ["Y"]])
-    # Return val, unit
-    return a.safe_normalize(input)
-
-
-def format_value(v, unit='', with_space=True):
-    """
-    Format v using SI suffices with optional units.
-    Suppress trailing zeros.
-    """
-    exp_suffix_map = {
-        -5: 'f',
-        -4: 'p',
-        -3: 'n',
-        -2: 'u',
-        -1: 'm',
-        0: '',
-        1: 'k',
-        2: 'M',
-        3: 'G',
-    }
-    # Suffix map is indexed by one third of the decadic logarithm.
-    exp = 0 if v == 0. else math.log(abs(v), 10.)
-    suffixMapIdx = int(math.floor(exp / 3.))
-    # Ensure we're in range
-    if not min(exp_suffix_map.keys()) < suffixMapIdx < max(
-            exp_suffix_map.keys()):
-        raise ValueError("Value out of range: {0}".format(v))
-    # Pre-multiply the value
-    v = v * (10.0 ** -(suffixMapIdx * 3))
-
-    res = '{:.5g}'.format(v)
-    suffix = exp_suffix_map[suffixMapIdx] + unit
-    return "{0} {1}".format(res, suffix) if suffix else res
+RESISTOR_STANDARD_VALUES = sum([
+    [0, 1.0, 4.99],                   # 0 - 4.99 ohm
+    [round(i * 10, 3) for i in E96],  # 10.0 - 97.6 ohm
+    [round(i * 100, 3) for i in E96], # 100 - 976 ohm
+    [round(i * 1e3, 3) for i in E96], # 1.00k - 9.76k ohm
+    [round(i * 1e4, 3) for i in E96], # 10.0k - 97.6k ohm
+    [round(i * 1e5, 3) for i in E96], # 100k - 976k ohm
+    [1000000.0, 1500000.0, 2000000.0, 2490000.0, 3010000.0, 4020000.0, 4990000.0, 6810000.0, 7500000.0, 10000000.0, 20000000.0]
+], [])
