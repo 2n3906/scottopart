@@ -306,7 +306,7 @@ def cap_kemet_parse(matchgroup):
         }
     }
     result = {k:lookups.get(k, {}).get(v, v) for k, v in matchgroup.items()}
-    result['manufacturer'] = 'Kemet'
+    result['manufacturer'] = 'KEMET'
     result['capacitance'] = capcode_to_value(matchgroup['capacitance'])
     return(result)
 
