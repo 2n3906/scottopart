@@ -21,9 +21,8 @@ def capcode_to_value(capcode):
 
 
 # Murata ceramic capacitors (beware: GCM is automotive)
-# TODO: add support for GCJ (automotive) series
 cap_murata_re = re.compile(
-    '^(?P<manufacturer_series>GRM|GJM|GCM)'
+    '^(?P<manufacturer_series>GRM|GJM|GCM|GCJ)'
     '(?P<case_package>[0-9DU]{2})'
     '(?P<size_thickness>[2-9A-Z]{1})'
     '(?P<dielectric_characteristic>[0-9A-Z]{2})'
@@ -110,6 +109,8 @@ def cap_murata_parse(matchgroup):
     result = {k:lookups.get(k, {}).get(v, v) for k, v in matchgroup.items()}
     result['manufacturer'] = 'Murata'
     result['capacitance'] = capcode_to_value(matchgroup['capacitance'])
+    if result['manufacturer_series'] in ['GCJ']:
+        result['is_automotive'] = True
     return(result)
 
 # Samsung ceramic capacitors
@@ -191,8 +192,8 @@ def cap_samsung_parse(matchgroup):
 
 
 # TDK ceramic capacitors
-# TODO: add parser for CGA (automotive) series (https://product.tdk.com/info/en/catalog/datasheets/mlcc_automotive_general_en.pdf)
-cap_tdk_re = re.compile(
+# TODO: add parser for CGA/CEU (automotive) series (https://product.tdk.com/info/en/catalog/datasheets/mlcc_automotive_general_en.pdf)
+cap_tdk_gp_re = re.compile(
     '^(?P<manufacturer_series>C)'
     '(?P<case_package>[0-9]{4})'
     '(?P<dielectric_characteristic>CH|C0G|JB|X5R|X6S|X7R|X7S|X7T|X8R)'
@@ -204,7 +205,7 @@ cap_tdk_re = re.compile(
     '(?P<control_code>[A-Z])?'
 )
 
-def cap_tdk_parse(matchgroup):
+def cap_tdk_gp_parse(matchgroup):
     lookups = {
         'case_package': {
             '0603' : '0201',
@@ -266,7 +267,7 @@ def cap_tdk_parse(matchgroup):
 cap_kemet_re = re.compile(
     '^C'
     '(?P<case_package>[0-9]{4})'
-    '(?P<manufacturer_series>C|H|X|S)'
+    '(?P<manufacturer_series>C|H|X|S|Y)'
     '(?P<capacitance>[R0-9]{3})'
     '(?P<capacitance_tolerance>[B-M])'
     '(?P<voltage_rating_dc>[1-9A])'
@@ -314,10 +315,10 @@ def cap_kemet_parse(matchgroup):
 cap_yageo_re = re.compile(
     '^(?P<manufacturer_series>CC|CL|CQ|SC|AC|CS)'
     '(?P<case_package>[0-9]{4})'
-    '(?P<capacitance_tolerance>[B-K])'
+    '(?P<capacitance_tolerance>[A-Z])'
     '(?P<packaging_code>R|K|P|F|C)?'
     '(?P<dielectric_characteristic>NPO|NP0|X7R|X7S|X7T|X8R)'
-    '(?P<voltage_rating_dc>[7-9])'
+    '(?P<voltage_rating_dc>[0-9A-Z])'
     '(?P<plating_code>B)'
     '(?P<process_code>B|N)'
     '(?P<capacitance>[R0-9]{3})'
@@ -498,7 +499,7 @@ def cap_taiyoyuden_parse(matchgroup):
 cap_parsers = [
     (cap_murata_re, cap_murata_parse),
     (cap_samsung_re, cap_samsung_parse),
-    (cap_tdk_re, cap_tdk_parse),
+    (cap_tdk_gp_re, cap_tdk_gp_parse),
     (cap_kemet_re, cap_kemet_parse),
     (cap_yageo_re, cap_yageo_parse),
     (cap_avx_re, cap_avx_parse),
