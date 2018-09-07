@@ -83,6 +83,7 @@ def cap_murata_parse(matchgroup):
             '1A' : 10,
             '1C' : 16,
             '1E' : 25,
+            'YA' : 35,
             '1H' : 50,
             '1J' : 63,
             '1K' : 80,
@@ -92,7 +93,8 @@ def cap_murata_parse(matchgroup):
             '2W' : 450,
             '2H' : 500,
             '2J' : 630,
-            '3A' : 1000
+            '3A' : 1000,
+            '3D' : 2000
         },
         'capacitance_tolerance' : {
             'B' : '±0.1pF',

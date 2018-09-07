@@ -1,5 +1,7 @@
 # Utilities
 
+import math
+
 def split_valuestring(input):
     # Don't forget to handle '\u03a9'(capital omega) and '\u2126' (ohm sign)
     # And '\u03bc' (greek mu) and '\u00b5' (micro sign)
@@ -9,7 +11,7 @@ def split_valuestring(input):
     return a.safe_normalize(input)
 
 
-def format_value(v, unit='', with_space=True):
+def format_value(v, unit='', with_space=True, with_unicode=False):
     """
     Format v using SI suffices with optional units.
     Suppress trailing zeros.
@@ -18,7 +20,7 @@ def format_value(v, unit='', with_space=True):
         -5: 'f',
         -4: 'p',
         -3: 'n',
-        -2: 'u',
+        -2: '\u00b5' if with_unicode else 'u',
         -1: 'm',
         0: '',
         1: 'k',
@@ -37,4 +39,5 @@ def format_value(v, unit='', with_space=True):
 
     res = '{:.5g}'.format(v)
     suffix = exp_suffix_map[suffixMapIdx] + unit
-    return "{0} {1}".format(res, suffix) if suffix else res
+    sep = ' ' if with_space else ''
+    return '{0}{1}{2}'.format(res, sep, suffix) if suffix else res
