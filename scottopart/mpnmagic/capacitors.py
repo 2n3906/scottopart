@@ -287,6 +287,11 @@ def cap_kemet_parse(matchgroup):
     lookups = {
         # case_package is already in EIA units
         'capacitance_tolerance' : {
+            'B' : '±0.1pF',
+            'C' : '±0.25pF',
+            'D' : '±0.5pF',
+            'F' : '1%',
+            'G' : '2%',
             'J' : '5%',
             'K' : '10%',
             'M' : '20%',
